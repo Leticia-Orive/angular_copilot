@@ -14,10 +14,12 @@ export class Tareas {
     return this.tareas;
   }
 
-  agregar(titulo: string): void {
+  agregar(titulo: string, categoria: string, fecha: string): void {
     const nueva: Tarea = {
       id: Date.now(),
       titulo: titulo.trim(),
+      categoria: categoria.trim() || 'General',
+      fecha: fecha || this.fechaActualISO(),
       completada: false,
     };
 
@@ -51,12 +53,25 @@ export class Tareas {
     if (!storage) return [];
 
     const raw = storage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Tarea[]) : [];
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw) as Array<Partial<Tarea>>;
+    return parsed.map(t => ({
+      id: t.id ?? Date.now(),
+      titulo: t.titulo?.trim() ?? '',
+      categoria: t.categoria?.trim() || 'General',
+      fecha: t.fecha || this.fechaActualISO(),
+      completada: Boolean(t.completada),
+    }));
   }
 
   private obtenerStorage(): Storage | null {
     if (typeof window === 'undefined') return null;
     return window.localStorage;
+  }
+
+  private fechaActualISO(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }
 ``

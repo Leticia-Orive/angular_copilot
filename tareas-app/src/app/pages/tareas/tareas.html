@@ -8,18 +8,53 @@
       [(ngModel)]="titulo"
       (keyup.enter)="agregar()"
     />
+    <select [(ngModel)]="categoria" aria-label="Categoría">
+      <option *ngFor="let item of categorias" [value]="item">{{ item }}</option>
+    </select>
+    <input type="date" [(ngModel)]="fecha" aria-label="Fecha" />
     <button (click)="agregar()">Agregar</button>
   </div>
 
-  <ul class="lista" *ngIf="tareas.length; else vacio">
-    <li *ngFor="let t of tareas" [class.done]="t.completada">
-      <label>
-        <input type="checkbox" [checked]="t.completada" (change)="toggle(t.id)" />
-        <span>{{ t.titulo }}</span>
-      </label>
-      <button class="delete" (click)="eliminar(t.id)">✕</button>
-    </li>
-  </ul>
+  <section class="calendario" *ngIf="tareas.length">
+    <div class="cal-header">
+      <button type="button" (click)="cambiarMes(-1)">‹</button>
+      <h2>{{ tituloMes }}</h2>
+      <button type="button" (click)="cambiarMes(1)">›</button>
+    </div>
+
+    <div class="cal-grid cal-weekdays">
+      <div class="cal-cell day-name" *ngFor="let dia of diasSemana">{{ dia }}</div>
+    </div>
+
+    <div class="cal-grid">
+      <div class="cal-cell" *ngFor="let celda of celdasCalendario" [class.empty]="!celda.dia">
+        <ng-container *ngIf="celda.dia">
+          <span class="day-number">{{ celda.dia }}</span>
+          <ul class="day-tasks" *ngIf="celda.tareas.length">
+            <li *ngFor="let t of celda.tareas" [class.done-task]="t.completada">
+              {{ t.titulo }} ({{ t.categoria }})
+            </li>
+          </ul>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="tareas.length; else vacio">
+    <section class="grupo" *ngFor="let grupo of tareasPorCategoria | keyvalue">
+      <h2>{{ grupo.key }}</h2>
+
+      <ul class="lista">
+        <li *ngFor="let t of grupo.value" [class.done]="t.completada">
+          <label>
+            <input type="checkbox" [checked]="t.completada" (change)="toggle(t.id)" />
+            <span>{{ t.titulo }}</span>
+          </label>
+          <button class="delete" (click)="eliminar(t.id)">✕</button>
+        </li>
+      </ul>
+    </section>
+  </div>
 
   <ng-template #vacio>
     <p class="hint">No hay tareas aún. Agrega la primera 👇</p>
