@@ -71,6 +71,27 @@
   margin-bottom: 8px;
 }
 
+.leyenda-colores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 .cal-cell {
   border: 1px solid #eee;
   border-radius: 8px;
@@ -98,10 +119,32 @@
   li {
     font-size: 12px;
     margin-bottom: 4px;
+    padding: 2px 6px;
+    border-radius: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+.cat-general {
+  background: #e8f0ff;
+  color: #20408f;
+}
+
+.cat-trabajo {
+  background: #ffe9d6;
+  color: #8f4a00;
+}
+
+.cat-estudio {
+  background: #e4f7e8;
+  color: #1b6b35;
+}
+
+.cat-personal {
+  background: #f3e8ff;
+  color: #5d2a8f;
 }
 
 .done-task {

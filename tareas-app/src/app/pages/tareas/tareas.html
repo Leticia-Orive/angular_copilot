@@ -26,12 +26,22 @@
       <div class="cal-cell day-name" *ngFor="let dia of diasSemana">{{ dia }}</div>
     </div>
 
+    <div class="leyenda-colores">
+      <span class="leyenda-item" *ngFor="let item of leyendaCategorias">
+        <span class="dot" [ngClass]="item.clase"></span>
+        {{ item.nombre }}
+      </span>
+    </div>
+
     <div class="cal-grid">
       <div class="cal-cell" *ngFor="let celda of celdasCalendario" [class.empty]="!celda.dia">
         <ng-container *ngIf="celda.dia">
           <span class="day-number">{{ celda.dia }}</span>
           <ul class="day-tasks" *ngIf="celda.tareas.length">
-            <li *ngFor="let t of celda.tareas" [class.done-task]="t.completada">
+            <li
+              *ngFor="let t of celda.tareas"
+              [ngClass]="[claseCategoria(t.categoria), t.completada ? 'done-task' : '']"
+            >
               {{ t.titulo }} ({{ t.categoria }})
             </li>
           </ul>

@@ -17,6 +17,12 @@ export class Tareas {
   categorias = ['General', 'Trabajo', 'Estudio', 'Personal'];
   diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   mesActual = new Date();
+  readonly coloresCategoria: Record<string, string> = {
+    General: 'cat-general',
+    Trabajo: 'cat-trabajo',
+    Estudio: 'cat-estudio',
+    Personal: 'cat-personal',
+  };
 
   constructor(private tareasService: TareasService) {}
 
@@ -70,6 +76,13 @@ export class Tareas {
     return celdas;
   }
 
+  get leyendaCategorias(): Array<{ nombre: string; clase: string }> {
+    return this.categorias.map(nombre => ({
+      nombre,
+      clase: this.claseCategoria(nombre),
+    }));
+  }
+
   agregar(): void {
     this.tareasService.agregar(this.titulo, this.categoria, this.fecha);
     this.titulo = '';
@@ -87,6 +100,10 @@ export class Tareas {
 
   eliminar(id: number): void {
     this.tareasService.eliminar(id);
+  }
+
+  claseCategoria(categoria: string): string {
+    return this.coloresCategoria[categoria] ?? 'cat-general';
   }
 
   private fechaActualISO(): string {
