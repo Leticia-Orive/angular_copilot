@@ -14,12 +14,16 @@ export class Tareas {
     return this.tareas;
   }
 
-  agregar(titulo: string, categoria: string, fecha: string): void {
+  agregar(titulo: string, categoria: string, fecha: string, recordatorio: string): void {
+    const recordatorioNormalizado = recordatorio.trim() || null;
+
     const nueva: Tarea = {
       id: Date.now(),
       titulo: titulo.trim(),
       categoria: categoria.trim() || 'General',
       fecha: fecha || this.fechaActualISO(),
+      recordatorio: recordatorioNormalizado,
+      recordada: false,
       completada: false,
     };
 
@@ -32,6 +36,13 @@ export class Tareas {
   toggle(id: number): void {
     this.tareas = this.tareas.map(t =>
       t.id === id ? { ...t, completada: !t.completada } : t
+    );
+    this.guardar();
+  }
+
+  marcarRecordada(id: number): void {
+    this.tareas = this.tareas.map(t =>
+      t.id === id ? { ...t, recordada: true } : t
     );
     this.guardar();
   }
@@ -61,6 +72,8 @@ export class Tareas {
       titulo: t.titulo?.trim() ?? '',
       categoria: t.categoria?.trim() || 'General',
       fecha: t.fecha || this.fechaActualISO(),
+      recordatorio: t.recordatorio?.trim() || null,
+      recordada: Boolean(t.recordada),
       completada: Boolean(t.completada),
     }));
   }

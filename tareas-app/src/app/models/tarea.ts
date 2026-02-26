@@ -3,5 +3,7 @@ export interface Tarea {
   titulo: string;
   categoria: string;
   fecha: string;
+  recordatorio: string | null;
+  recordada: boolean;
   completada: boolean;
 }

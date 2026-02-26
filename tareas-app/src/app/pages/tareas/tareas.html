@@ -12,6 +12,7 @@
       <option *ngFor="let item of categorias" [value]="item">{{ item }}</option>
     </select>
     <input type="date" [(ngModel)]="fecha" aria-label="Fecha" />
+    <input type="datetime-local" [(ngModel)]="recordatorio" aria-label="Recordatorio" />
     <button (click)="agregar()">Agregar</button>
   </div>
 
@@ -42,7 +43,15 @@
               *ngFor="let t of celda.tareas"
               [ngClass]="[claseCategoria(t.categoria), t.completada ? 'done-task' : '']"
             >
-              {{ t.titulo }} ({{ t.categoria }})
+              <span>{{ t.titulo }} ({{ t.categoria }})</span>
+              <button
+                type="button"
+                class="delete-cal"
+                aria-label="Borrar tarea"
+                (click)="pedirConfirmacionEliminar(t)"
+              >
+                ✕
+              </button>
             </li>
           </ul>
         </ng-container>
@@ -58,9 +67,14 @@
         <li *ngFor="let t of grupo.value" [class.done]="t.completada">
           <label>
             <input type="checkbox" [checked]="t.completada" (change)="toggle(t.id)" />
-            <span>{{ t.titulo }}</span>
+            <span>
+              {{ t.titulo }}
+              <small class="recordatorio" *ngIf="t.recordatorio">
+                🔔 {{ textoRecordatorio(t.recordatorio) }}
+              </small>
+            </span>
           </label>
-          <button class="delete" (click)="eliminar(t.id)">✕</button>
+          <button class="delete" (click)="pedirConfirmacionEliminar(t)">✕</button>
         </li>
       </ul>
     </section>
@@ -69,4 +83,15 @@
   <ng-template #vacio>
     <p class="hint">No hay tareas aún. Agrega la primera 👇</p>
   </ng-template>
+
+  <div class="modal-overlay" *ngIf="tareaPendienteEliminar">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-confirmar-eliminar">
+      <h3 id="titulo-confirmar-eliminar">¿Quieres borrar esta tarea?</h3>
+      <p>{{ tareaPendienteEliminar.titulo }}</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cancelarEliminacion()">Cancelar</button>
+        <button type="button" class="btn-delete" (click)="confirmarEliminacion()">Eliminar</button>
+      </div>
+    </div>
+  </div>
 </div>

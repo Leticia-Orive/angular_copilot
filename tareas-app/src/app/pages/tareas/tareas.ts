@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Tarea } from '../../models/tarea';
 import { Tareas as TareasService } from '../../services/tareas';
 import { FormsModule } from '@angular/forms';
@@ -10,21 +10,38 @@ import { CommonModule } from '@angular/common';
   templateUrl: './tareas.html',
   styleUrl: './tareas.css',
 })
-export class Tareas {
+export class Tareas implements OnInit, OnDestroy {
   titulo = '';
   categoria = 'General';
   fecha = this.fechaActualISO();
-  categorias = ['General', 'Trabajo', 'Estudio', 'Personal'];
+  recordatorio = '';
+  tareaPendienteEliminar: Tarea | null = null;
+  categorias = ['General', 'Trabajo', 'Estudio', 'Personal', 'Reunión'];
   diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   mesActual = new Date();
+  private intervaloRecordatorios: ReturnType<typeof setInterval> | null = null;
   readonly coloresCategoria: Record<string, string> = {
     General: 'cat-general',
     Trabajo: 'cat-trabajo',
     Estudio: 'cat-estudio',
     Personal: 'cat-personal',
+    Reunión: 'cat-trabajo',
   };
 
   constructor(private tareasService: TareasService) {}
+
+  ngOnInit(): void {
+    this.revisarRecordatoriosVencidos();
+    this.intervaloRecordatorios = setInterval(() => {
+      this.revisarRecordatoriosVencidos();
+    }, 30000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervaloRecordatorios) {
+      clearInterval(this.intervaloRecordatorios);
+    }
+  }
 
   get tareas(): Tarea[] {
     return this.tareasService.listar();
@@ -84,10 +101,16 @@ export class Tareas {
   }
 
   agregar(): void {
-    this.tareasService.agregar(this.titulo, this.categoria, this.fecha);
+    this.tareasService.agregar(this.titulo, this.categoria, this.fecha, this.recordatorio);
+
+    if (this.recordatorio) {
+      this.solicitarPermisoNotificaciones();
+    }
+
     this.titulo = '';
     this.categoria = 'General';
     this.fecha = this.fechaActualISO();
+    this.recordatorio = '';
   }
 
   cambiarMes(delta: number): void {
@@ -102,8 +125,88 @@ export class Tareas {
     this.tareasService.eliminar(id);
   }
 
+  pedirConfirmacionEliminar(tarea: Tarea): void {
+    this.tareaPendienteEliminar = tarea;
+  }
+
+  cancelarEliminacion(): void {
+    this.tareaPendienteEliminar = null;
+  }
+
+  confirmarEliminacion(): void {
+    if (!this.tareaPendienteEliminar) {
+      return;
+    }
+
+    this.eliminar(this.tareaPendienteEliminar.id);
+    this.tareaPendienteEliminar = null;
+  }
+
   claseCategoria(categoria: string): string {
     return this.coloresCategoria[categoria] ?? 'cat-general';
+  }
+
+  textoRecordatorio(fechaHora: string | null): string {
+    if (!fechaHora) {
+      return '';
+    }
+
+    const date = new Date(fechaHora);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleString('es-ES', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+  }
+
+  private solicitarPermisoNotificaciones(): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      void Notification.requestPermission();
+    }
+  }
+
+  private revisarRecordatoriosVencidos(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const ahora = Date.now();
+    const vencidas = this.tareas.filter(t => {
+      if (!t.recordatorio || t.recordada || t.completada) {
+        return false;
+      }
+
+      const fechaRecordatorio = new Date(t.recordatorio).getTime();
+      if (Number.isNaN(fechaRecordatorio)) {
+        return false;
+      }
+
+      return fechaRecordatorio <= ahora;
+    });
+
+    if (!vencidas.length) {
+      return;
+    }
+
+    for (const tarea of vencidas) {
+      this.tareasService.marcarRecordada(tarea.id);
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Recordatorio de tarea', {
+          body: tarea.titulo,
+        });
+      }
+    }
+
+    const lista = vencidas.map(t => `• ${t.titulo}`).join('\n');
+    window.alert(`Tienes recordatorios pendientes:\n${lista}`);
   }
 
   private fechaActualISO(): string {
