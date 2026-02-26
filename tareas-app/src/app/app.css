@@ -1,0 +1,19 @@
+.top-nav {
+	max-width: 900px;
+	margin: 20px auto 0;
+	padding: 0 16px;
+	display: flex;
+	gap: 10px;
+}
+
+.top-nav a {
+	color: #2d6cdf;
+	text-decoration: none;
+	padding: 6px 10px;
+	border-radius: 8px;
+}
+
+.top-nav a.active {
+	background: #e8f0ff;
+	font-weight: 600;
+}

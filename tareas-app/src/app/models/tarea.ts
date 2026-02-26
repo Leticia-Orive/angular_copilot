@@ -1,3 +1,9 @@
+export interface DocumentoTarea {
+  nombre: string;
+  tipo: string;
+  contenido: string;
+}
+
 export interface Tarea {
   id: number;
   titulo: string;
@@ -6,4 +12,6 @@ export interface Tarea {
   recordatorio: string | null;
   recordada: boolean;
   completada: boolean;
+  fechaRealizacion: string | null;
+  documentos: DocumentoTarea[];
 }

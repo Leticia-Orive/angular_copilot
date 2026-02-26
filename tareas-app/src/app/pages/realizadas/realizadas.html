@@ -1,0 +1,30 @@
+<div class="container">
+  <h1>Tareas realizadas</h1>
+
+  <p class="hint" *ngIf="!tareasRealizadas.length">Aún no hay tareas completadas.</p>
+
+  <section class="card" *ngFor="let tarea of tareasRealizadas">
+    <h2>{{ tarea.titulo }}</h2>
+    <p class="meta">Categoría: {{ tarea.categoria }}</p>
+    <p class="meta">Realizada: {{ fechaFormateada(tarea.fechaRealizacion) }}</p>
+
+    <div class="upload">
+      <label [for]="'archivo-' + tarea.id">Subir documento útil para próximas actividades</label>
+      <input
+        type="file"
+        [id]="'archivo-' + tarea.id"
+        (change)="subirDocumento($event, tarea.id)"
+      />
+    </div>
+
+    <ul class="docs" *ngIf="tarea.documentos.length; else sinDocs">
+      <li *ngFor="let doc of tarea.documentos">
+        <a [href]="doc.contenido" [download]="doc.nombre">{{ doc.nombre }}</a>
+      </li>
+    </ul>
+
+    <ng-template #sinDocs>
+      <p class="hint">Sin documentos subidos todavía.</p>
+    </ng-template>
+  </section>
+</div>

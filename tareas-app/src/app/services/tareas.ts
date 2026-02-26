@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Tarea } from '../models/tarea';
+import { DocumentoTarea, Tarea } from '../models/tarea';
 
 const STORAGE_KEY = 'tareas_app_v1';
 
@@ -25,6 +25,8 @@ export class Tareas {
       recordatorio: recordatorioNormalizado,
       recordada: false,
       completada: false,
+      fechaRealizacion: null,
+      documentos: [],
     };
 
     if (!nueva.titulo) return;
@@ -34,9 +36,36 @@ export class Tareas {
   }
 
   toggle(id: number): void {
-    this.tareas = this.tareas.map(t =>
-      t.id === id ? { ...t, completada: !t.completada } : t
-    );
+    this.tareas = this.tareas.map(t => {
+      if (t.id !== id) {
+        return t;
+      }
+
+      const completada = !t.completada;
+      return {
+        ...t,
+        completada,
+        fechaRealizacion: completada ? new Date().toISOString() : null,
+      };
+    });
+    this.guardar();
+  }
+
+  listarRealizadas(): Tarea[] {
+    return this.tareas.filter(t => t.completada);
+  }
+
+  adjuntarDocumento(id: number, documento: DocumentoTarea): void {
+    this.tareas = this.tareas.map(t => {
+      if (t.id !== id) {
+        return t;
+      }
+
+      return {
+        ...t,
+        documentos: [...t.documentos, documento],
+      };
+    });
     this.guardar();
   }
 
@@ -75,6 +104,16 @@ export class Tareas {
       recordatorio: t.recordatorio?.trim() || null,
       recordada: Boolean(t.recordada),
       completada: Boolean(t.completada),
+      fechaRealizacion: t.fechaRealizacion || null,
+      documentos: Array.isArray(t.documentos)
+        ? t.documentos
+            .filter(doc => !!doc?.nombre && !!doc?.contenido)
+            .map(doc => ({
+              nombre: doc.nombre,
+              tipo: doc.tipo || 'application/octet-stream',
+              contenido: doc.contenido,
+            }))
+        : [],
     }));
   }
 
