@@ -42,13 +42,14 @@
             <li
               *ngFor="let t of celda.tareas"
               [ngClass]="[claseCategoria(t.categoria), t.completada ? 'done-task' : '']"
+              (click)="abrirTareaDesdeCalendario(t.id)"
             >
               <span>{{ t.titulo }} ({{ t.categoria }})</span>
               <button
                 type="button"
                 class="delete-cal"
                 aria-label="Borrar tarea"
-                (click)="pedirConfirmacionEliminar(t)"
+                (click)="$event.stopPropagation(); pedirConfirmacionEliminar(t)"
               >
                 ✕
               </button>
@@ -66,7 +67,11 @@
       <ul class="lista">
         <li *ngFor="let t of grupo.value" [class.done]="t.completada">
           <label>
-            <input type="checkbox" [checked]="t.completada" (change)="toggle(t.id)" />
+            <input
+              type="checkbox"
+              [checked]="t.completada"
+              (change)="marcarComoRealizada(t.id)"
+            />
             <span>
               {{ t.titulo }}
               <small class="recordatorio" *ngIf="t.recordatorio">

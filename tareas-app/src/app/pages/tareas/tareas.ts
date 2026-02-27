@@ -3,6 +3,7 @@ import { Tarea } from '../../models/tarea';
 import { Tareas as TareasService } from '../../services/tareas';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tareas',
@@ -28,7 +29,10 @@ export class Tareas implements OnInit, OnDestroy {
     Reunión: 'cat-trabajo',
   };
 
-  constructor(private tareasService: TareasService) {}
+  constructor(
+    private tareasService: TareasService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.revisarRecordatoriosVencidos();
@@ -119,6 +123,34 @@ export class Tareas implements OnInit, OnDestroy {
 
   toggle(id: number): void {
     this.tareasService.toggle(id);
+  }
+
+  marcarComoRealizada(id: number): void {
+    const tareaActual = this.tareas.find(t => t.id === id);
+    const estabaCompletada = Boolean(tareaActual?.completada);
+
+    this.toggle(id);
+
+    if (!estabaCompletada) {
+      window.alert('Esta tarea está realizada ✅');
+      void this.router.navigate(['/realizadas']);
+    }
+  }
+
+  abrirTareaDesdeCalendario(id: number): void {
+    const tareaActual = this.tareas.find(t => t.id === id);
+
+    if (!tareaActual) {
+      return;
+    }
+
+    if (!tareaActual.completada) {
+      this.marcarComoRealizada(id);
+      return;
+    }
+
+    window.alert('Esta tarea ya está realizada ✅');
+    void this.router.navigate(['/realizadas']);
   }
 
   eliminar(id: number): void {
