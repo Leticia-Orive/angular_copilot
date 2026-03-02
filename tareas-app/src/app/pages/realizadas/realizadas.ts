@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { Tarea } from '../../models/tarea';
 import { Tareas as TareasService } from '../../services/tareas';
 
+// Muestra tareas completadas y permite adjuntar documentación.
 @Component({
   selector: 'app-realizadas',
   imports: [CommonModule],
@@ -12,10 +13,12 @@ import { Tareas as TareasService } from '../../services/tareas';
 export class Realizadas {
   constructor(private tareasService: TareasService) {}
 
+  // Obtiene solo el listado de tareas completadas.
   get tareasRealizadas(): Tarea[] {
     return this.tareasService.listarRealizadas();
   }
 
+  // Convierte la fecha ISO en texto legible para la vista.
   fechaFormateada(fechaISO: string | null): string {
     if (!fechaISO) {
       return 'Sin fecha';
@@ -32,6 +35,7 @@ export class Realizadas {
     });
   }
 
+  // Lee el archivo seleccionado y lo guarda como adjunto de la tarea.
   subirDocumento(event: Event, tareaId: number): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

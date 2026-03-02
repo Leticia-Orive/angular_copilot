@@ -2,18 +2,22 @@
 import { Injectable } from '@angular/core';
 import { DocumentoTarea, Tarea } from '../models/tarea';
 
+// Clave única usada para guardar/leer tareas en localStorage.
 const STORAGE_KEY = 'tareas_app_v1';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Tareas {
+  // Estado en memoria de las tareas; se inicializa desde localStorage.
   private tareas: Tarea[] = this.cargar();
 
+  // Devuelve todas las tareas (pendientes y completadas).
   listar(): Tarea[] {
     return this.tareas;
   }
 
+  // Crea una nueva tarea y la guarda en localStorage.
   agregar(titulo: string, categoria: string, fecha: string, recordatorio: string): void {
     const recordatorioNormalizado = recordatorio.trim() || null;
 
@@ -35,6 +39,7 @@ export class Tareas {
     this.guardar();
   }
 
+  // Cambia el estado de completada/no completada y actualiza su fecha de realización.
   toggle(id: number): void {
     this.tareas = this.tareas.map(t => {
       if (t.id !== id) {
@@ -51,10 +56,12 @@ export class Tareas {
     this.guardar();
   }
 
+  // Filtra y devuelve solo tareas ya completadas.
   listarRealizadas(): Tarea[] {
     return this.tareas.filter(t => t.completada);
   }
 
+  // Añade un documento adjunto a una tarea específica.
   adjuntarDocumento(id: number, documento: DocumentoTarea): void {
     this.tareas = this.tareas.map(t => {
       if (t.id !== id) {
@@ -69,6 +76,7 @@ export class Tareas {
     this.guardar();
   }
 
+  // Marca una tarea como recordada para evitar notificaciones repetidas.
   marcarRecordada(id: number): void {
     this.tareas = this.tareas.map(t =>
       t.id === id ? { ...t, recordada: true } : t
@@ -76,11 +84,13 @@ export class Tareas {
     this.guardar();
   }
 
+  // Elimina una tarea por su identificador.
   eliminar(id: number): void {
     this.tareas = this.tareas.filter(t => t.id !== id);
     this.guardar();
   }
 
+  // Persiste el estado actual en localStorage (si existe entorno navegador).
   private guardar(): void {
     const storage = this.obtenerStorage();
     if (!storage) return;
@@ -88,6 +98,7 @@ export class Tareas {
     storage.setItem(STORAGE_KEY, JSON.stringify(this.tareas));
   }
 
+  // Lee tareas desde localStorage y normaliza valores para evitar datos inválidos.
   private cargar(): Tarea[] {
     const storage = this.obtenerStorage();
     if (!storage) return [];
@@ -117,11 +128,13 @@ export class Tareas {
     }));
   }
 
+  // Devuelve localStorage solo cuando la app corre en navegador.
   private obtenerStorage(): Storage | null {
     if (typeof window === 'undefined') return null;
     return window.localStorage;
   }
 
+  // Genera la fecha actual con formato YYYY-MM-DD.
   private fechaActualISO(): string {
     return new Date().toISOString().slice(0, 10);
   }
