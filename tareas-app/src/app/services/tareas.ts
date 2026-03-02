@@ -29,7 +29,9 @@ export class Tareas {
       recordatorio: recordatorioNormalizado,
       recordada: false,
       completada: false,
+      finalizadaPorDia: false,
       fechaRealizacion: null,
+      fechaFinalizacionDia: null,
       documentos: [],
     };
 
@@ -50,7 +52,25 @@ export class Tareas {
       return {
         ...t,
         completada,
+        finalizadaPorDia: false,
         fechaRealizacion: completada ? new Date().toISOString() : null,
+        fechaFinalizacionDia: null,
+      };
+    });
+    this.guardar();
+  }
+
+  // Marca una tarea como finalizada por hoy sin terminarla definitivamente.
+  marcarFinalizadaPorDia(id: number): void {
+    this.tareas = this.tareas.map(t => {
+      if (t.id !== id || t.completada) {
+        return t;
+      }
+
+      return {
+        ...t,
+        finalizadaPorDia: true,
+        fechaFinalizacionDia: new Date().toISOString(),
       };
     });
     this.guardar();
@@ -59,6 +79,18 @@ export class Tareas {
   // Filtra y devuelve solo tareas ya completadas.
   listarRealizadas(): Tarea[] {
     return this.tareas.filter(t => t.completada);
+  }
+
+  // Devuelve tareas finalizadas por hoy pero no terminadas definitivamente.
+  listarFinalizadasPorDiaNoTerminadas(): Tarea[] {
+    const hoy = this.fechaActualISO();
+    return this.tareas.filter(t => {
+      if (t.completada || !t.finalizadaPorDia || !t.fechaFinalizacionDia) {
+        return false;
+      }
+
+      return t.fechaFinalizacionDia.slice(0, 10) === hoy;
+    });
   }
 
   // Añade un documento adjunto a una tarea específica.
@@ -115,7 +147,9 @@ export class Tareas {
       recordatorio: t.recordatorio?.trim() || null,
       recordada: Boolean(t.recordada),
       completada: Boolean(t.completada),
+      finalizadaPorDia: Boolean(t.finalizadaPorDia),
       fechaRealizacion: t.fechaRealizacion || null,
+      fechaFinalizacionDia: t.fechaFinalizacionDia || null,
       documentos: Array.isArray(t.documentos)
         ? t.documentos
             .filter(doc => !!doc?.nombre && !!doc?.contenido)

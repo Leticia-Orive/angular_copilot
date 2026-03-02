@@ -149,6 +149,12 @@ export class Tareas implements OnInit, OnDestroy {
     this.tareasService.toggle(id);
   }
 
+  // Marca la tarea como finalizada por hoy sin terminarla definitivamente.
+  marcarComoFinalizadaPorDia(id: number): void {
+    this.tareasService.marcarFinalizadaPorDia(id);
+    window.alert('Tarea finalizada por hoy 🕒');
+  }
+
   // Marca tarea como realizada y navega a la vista de completadas.
   marcarComoRealizada(id: number): void {
     const tareaActual = this.tareas.find(t => t.id === id);

@@ -41,7 +41,11 @@
           <ul class="day-tasks" *ngIf="celda.tareas.length">
             <li
               *ngFor="let t of celda.tareas"
-              [ngClass]="[claseCategoria(t.categoria), t.completada ? 'done-task' : '']"
+              [ngClass]="[
+                claseCategoria(t.categoria),
+                t.completada ? 'done-task' : '',
+                t.finalizadaPorDia && !t.completada ? 'day-done-task' : ''
+              ]"
               (click)="abrirTareaDesdeCalendario(t.id)"
             >
               <span>{{ t.titulo }} ({{ t.categoria }})</span>
@@ -65,7 +69,11 @@
       <h2>{{ grupo.key }}</h2>
 
       <ul class="lista">
-        <li *ngFor="let t of grupo.value" [class.done]="t.completada">
+        <li
+          *ngFor="let t of grupo.value"
+          [class.done]="t.completada"
+          [class.day-done]="t.finalizadaPorDia && !t.completada"
+        >
           <label>
             <input
               type="checkbox"
@@ -74,11 +82,22 @@
             />
             <span>
               {{ t.titulo }}
+              <small class="estado-dia" *ngIf="t.finalizadaPorDia && !t.completada">
+                Finalizada por hoy
+              </small>
               <small class="recordatorio" *ngIf="t.recordatorio">
                 🔔 {{ textoRecordatorio(t.recordatorio) }}
               </small>
             </span>
           </label>
+          <button
+            class="finish-day"
+            type="button"
+            *ngIf="!t.completada && !t.finalizadaPorDia"
+            (click)="marcarComoFinalizadaPorDia(t.id)"
+          >
+            Finalizar por hoy
+          </button>
           <button class="delete" (click)="pedirConfirmacionEliminar(t)">✕</button>
         </li>
       </ul>

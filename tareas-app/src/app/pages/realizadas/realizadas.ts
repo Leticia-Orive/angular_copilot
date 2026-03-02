@@ -13,9 +13,19 @@ import { Tareas as TareasService } from '../../services/tareas';
 export class Realizadas {
   constructor(private tareasService: TareasService) {}
 
+  // Obtiene tareas finalizadas por hoy que aún no están terminadas.
+  get tareasFinalizadasPorDiaNoTerminadas(): Tarea[] {
+    return this.tareasService.listarFinalizadasPorDiaNoTerminadas();
+  }
+
   // Obtiene solo el listado de tareas completadas.
   get tareasRealizadas(): Tarea[] {
     return this.tareasService.listarRealizadas();
+  }
+
+  // Marca como terminada una tarea que estaba finalizada por hoy.
+  terminarTarea(id: number): void {
+    this.tareasService.toggle(id);
   }
 
   // Convierte la fecha ISO en texto legible para la vista.

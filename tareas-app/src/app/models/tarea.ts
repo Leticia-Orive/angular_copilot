@@ -24,8 +24,12 @@ export interface Tarea {
   recordada: boolean;
   // Indica si la tarea está completada.
   completada: boolean;
+  // Indica si la tarea se finalizó solo por hoy (sin terminarla definitivamente).
+  finalizadaPorDia: boolean;
   // Fecha/hora en la que se marcó como completada.
   fechaRealizacion: string | null;
+  // Fecha/hora en la que se marcó como finalizada por hoy.
+  fechaFinalizacionDia: string | null;
   // Documentos asociados a la tarea (solo si se adjuntan).
   documentos: DocumentoTarea[];
 }

@@ -12,6 +12,11 @@
   margin-bottom: 12px;
 }
 
+.section-title {
+  margin: 20px 0 8px;
+  font-size: 20px;
+}
+
 h2 {
   margin: 0 0 6px;
   font-size: 18px;
@@ -35,4 +40,13 @@ h2 {
 
 .hint {
   color: #666;
+}
+
+.finish-now {
+  border: 0;
+  border-radius: 8px;
+  background: #2d6cdf;
+  color: white;
+  padding: 8px 12px;
+  cursor: pointer;
 }

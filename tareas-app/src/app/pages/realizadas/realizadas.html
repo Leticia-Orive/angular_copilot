@@ -1,6 +1,21 @@
 <div class="container">
   <h1>Tareas realizadas</h1>
 
+  <h2 class="section-title">Finalizadas por hoy, pero no terminadas</h2>
+  <p class="hint" *ngIf="!tareasFinalizadasPorDiaNoTerminadas.length">
+    No hay tareas en este estado hoy.
+  </p>
+
+  <section class="card" *ngFor="let tarea of tareasFinalizadasPorDiaNoTerminadas">
+    <h2>{{ tarea.titulo }}</h2>
+    <p class="meta">Categoría: {{ tarea.categoria }}</p>
+    <button class="finish-now" type="button" (click)="terminarTarea(tarea.id)">
+      Marcar como terminada
+    </button>
+  </section>
+
+  <h2 class="section-title">Terminadas</h2>
+
   <p class="hint" *ngIf="!tareasRealizadas.length">Aún no hay tareas completadas.</p>
 
   <section class="card" *ngFor="let tarea of tareasRealizadas">
