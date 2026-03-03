@@ -4,7 +4,7 @@ export interface DocumentoTarea {
   nombre: string;
   // Tipo MIME del archivo (ej: application/pdf).
   tipo: string;
-  // Contenido en formato Data URL para persistirlo en localStorage.
+  // Contenido codificado en formato Data URL para poder persistirlo en localStorage.
   contenido: string;
 }
 
@@ -18,9 +18,9 @@ export interface Tarea {
   categoria: string;
   // Fecha objetivo de la tarea en formato YYYY-MM-DD.
   fecha: string;
-  // Fecha/hora opcional para notificación de recordatorio.
+  // Fecha/hora opcional para disparar un recordatorio al usuario.
   recordatorio: string | null;
-  // Indica si el recordatorio ya fue mostrado.
+  // Evita notificaciones repetidas: true cuando el recordatorio ya se mostró.
   recordada: boolean;
   // Indica si la tarea está completada.
   completada: boolean;

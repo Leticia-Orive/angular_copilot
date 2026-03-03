@@ -1,11 +1,14 @@
 <div class="container">
+  <!-- Encabezado de la vista de tareas realizadas -->
   <h1>Tareas realizadas</h1>
 
+  <!-- Bloque de tareas finalizadas por día pero aún no cerradas definitivamente -->
   <h2 class="section-title">Finalizadas por hoy, pero no terminadas</h2>
   <p class="hint" *ngIf="!tareasFinalizadasPorDiaNoTerminadas.length">
     No hay tareas en este estado hoy.
   </p>
 
+  <!-- Tarjetas de tareas que aún pueden marcarse como terminadas -->
   <section class="card" *ngFor="let tarea of tareasFinalizadasPorDiaNoTerminadas">
     <h2>{{ tarea.titulo }}</h2>
     <p class="meta">Categoría: {{ tarea.categoria }}</p>
@@ -16,13 +19,16 @@
 
   <h2 class="section-title">Terminadas</h2>
 
+  <!-- Mensaje cuando todavía no hay tareas completadas -->
   <p class="hint" *ngIf="!tareasRealizadas.length">Aún no hay tareas completadas.</p>
 
+  <!-- Listado de tareas completadas con su fecha y documentos -->
   <section class="card" *ngFor="let tarea of tareasRealizadas">
     <h2>{{ tarea.titulo }}</h2>
     <p class="meta">Categoría: {{ tarea.categoria }}</p>
     <p class="meta">Realizada: {{ fechaFormateada(tarea.fechaRealizacion) }}</p>
 
+    <!-- Carga de archivos útiles asociados a la tarea -->
     <div class="upload">
       <label [for]="'archivo-' + tarea.id">Subir documento útil para próximas actividades</label>
       <input
@@ -32,12 +38,14 @@
       />
     </div>
 
+    <!-- Lista de documentos adjuntos disponibles para descarga -->
     <ul class="docs" *ngIf="tarea.documentos.length; else sinDocs">
       <li *ngFor="let doc of tarea.documentos">
         <a [href]="doc.contenido" [download]="doc.nombre">{{ doc.nombre }}</a>
       </li>
     </ul>
 
+    <!-- Estado vacío si no hay adjuntos en la tarea -->
     <ng-template #sinDocs>
       <p class="hint">Sin documentos subidos todavía.</p>
     </ng-template>

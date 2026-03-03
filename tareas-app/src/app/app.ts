@@ -9,6 +9,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   styleUrl: './app.css'
 })
 export class App {
-  // Título reactivo usado en la vista principal.
+  // Estado reactivo con el título base de la app.
+  // Se declara con `signal` para que Angular detecte y refleje cambios automáticamente en la UI.
   protected readonly title = signal('tareas-app');
 }

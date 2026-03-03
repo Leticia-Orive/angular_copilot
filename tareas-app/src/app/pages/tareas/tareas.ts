@@ -50,7 +50,9 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Inicializa chequeo de recordatorios al cargar el componente.
   ngOnInit(): void {
+    // Primera revisión inmediata al entrar a la pantalla.
     this.revisarRecordatoriosVencidos();
+    // Revisión periódica cada 30 segundos para detectar nuevos vencimientos.
     this.intervaloRecordatorios = setInterval(() => {
       this.revisarRecordatoriosVencidos();
     }, 30000);
@@ -59,6 +61,7 @@ export class Tareas implements OnInit, OnDestroy {
   // Limpia recursos para evitar fugas de memoria al destruir el componente.
   ngOnDestroy(): void {
     if (this.intervaloRecordatorios) {
+      // Importante limpiar el intervalo para no dejar procesos activos.
       clearInterval(this.intervaloRecordatorios);
     }
   }
@@ -70,11 +73,14 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Agrupa tareas por categoría para renderizar por secciones.
   get tareasPorCategoria(): Record<string, Tarea[]> {
+    // `reduce` crea un objeto donde cada clave es una categoría.
     return this.tareas.reduce((acc, tarea) => {
       if (!acc[tarea.categoria]) {
+        // Si la categoría aún no existe, inicializa su array.
         acc[tarea.categoria] = [];
       }
 
+      // Agrega la tarea al grupo correspondiente.
       acc[tarea.categoria].push(tarea);
       return acc;
     }, {} as Record<string, Tarea[]>);
@@ -90,18 +96,21 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Construye celdas del calendario y asocia tareas por fecha.
   get celdasCalendario(): Array<{ fecha: string | null; dia: number | null; tareas: Tarea[] }> {
+    // Año y mes actualmente visibles en el calendario.
     const year = this.mesActual.getFullYear();
     const month = this.mesActual.getMonth();
 
     const primerDia = new Date(year, month, 1);
     const ultimoDia = new Date(year, month + 1, 0);
 
+    // Cantidad de celdas vacías al inicio para alinear el lunes como primer día.
     const offsetLunes = (primerDia.getDay() + 6) % 7;
     const totalDias = ultimoDia.getDate();
 
     const celdas: Array<{ fecha: string | null; dia: number | null; tareas: Tarea[] }> = [];
 
     for (let i = 0; i < offsetLunes; i++) {
+      // Celdas de relleno antes del día 1 del mes.
       celdas.push({ fecha: null, dia: null, tareas: [] });
     }
 
@@ -110,6 +119,7 @@ export class Tareas implements OnInit, OnDestroy {
       celdas.push({
         fecha,
         dia: day,
+        // Vincula a cada día solo las tareas con esa misma fecha.
         tareas: this.tareas.filter(t => t.fecha === fecha),
       });
     }
@@ -127,12 +137,15 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Crea una tarea nueva y reinicia el formulario.
   agregar(): void {
+    // Delega creación y persistencia al servicio.
     this.tareasService.agregar(this.titulo, this.categoria, this.fecha, this.recordatorio);
 
     if (this.recordatorio) {
+      // Si hay recordatorio, intentamos habilitar notificaciones del navegador.
       this.solicitarPermisoNotificaciones();
     }
 
+    // Resetea el formulario tras intentar crear la tarea.
     this.titulo = '';
     this.categoria = 'General';
     this.fecha = this.fechaActualISO();
@@ -141,6 +154,7 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Avanza o retrocede el mes mostrado en calendario.
   cambiarMes(delta: number): void {
+    // `delta`: -1 mes anterior, +1 mes siguiente.
     this.mesActual = new Date(this.mesActual.getFullYear(), this.mesActual.getMonth() + delta, 1);
   }
 
@@ -157,12 +171,15 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Marca tarea como realizada y navega a la vista de completadas.
   marcarComoRealizada(id: number): void {
+    // Leemos estado previo para saber si debemos mostrar aviso/navegar.
     const tareaActual = this.tareas.find(t => t.id === id);
     const estabaCompletada = Boolean(tareaActual?.completada);
 
+    // Cambia el estado (pendiente <-> completada).
     this.toggle(id);
 
     if (!estabaCompletada) {
+      // Solo avisa y navega cuando pasa de pendiente a completada.
       window.alert('Esta tarea está realizada ✅');
       void this.router.navigate(['/realizadas']);
     }
@@ -170,6 +187,7 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Acción al pulsar una tarea desde el calendario.
   abrirTareaDesdeCalendario(id: number): void {
+    // Busca la tarea en memoria para decidir la acción adecuada.
     const tareaActual = this.tareas.find(t => t.id === id);
 
     if (!tareaActual) {
@@ -177,10 +195,12 @@ export class Tareas implements OnInit, OnDestroy {
     }
 
     if (!tareaActual.completada) {
+      // Si aún no está hecha, la marcamos como realizada.
       this.marcarComoRealizada(id);
       return;
     }
 
+    // Si ya estaba realizada, solo informa y dirige a la vista correspondiente.
     window.alert('Esta tarea ya está realizada ✅');
     void this.router.navigate(['/realizadas']);
   }
@@ -206,6 +226,7 @@ export class Tareas implements OnInit, OnDestroy {
       return;
     }
 
+    // Elimina y cierra el modal de confirmación.
     this.eliminar(this.tareaPendienteEliminar.id);
     this.tareaPendienteEliminar = null;
   }
@@ -217,11 +238,13 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Formatea fecha/hora de recordatorio para mostrar en UI.
   textoRecordatorio(fechaHora: string | null): string {
+    // Si no hay valor, no mostramos texto.
     if (!fechaHora) {
       return '';
     }
 
     const date = new Date(fechaHora);
+    // Evita mostrar fechas inválidas por datos corruptos o formato incorrecto.
     if (Number.isNaN(date.getTime())) {
       return '';
     }
@@ -234,10 +257,12 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Pide permiso de notificaciones del navegador cuando aplica.
   private solicitarPermisoNotificaciones(): void {
+    // En SSR o navegadores sin API Notification, no se puede solicitar permiso.
     if (typeof window === 'undefined' || !('Notification' in window)) {
       return;
     }
 
+    // Solo se pide permiso si todavía no fue concedido/denegado.
     if (Notification.permission === 'default') {
       void Notification.requestPermission();
     }
@@ -245,21 +270,25 @@ export class Tareas implements OnInit, OnDestroy {
 
   // Revisa recordatorios vencidos y notifica/avisa al usuario.
   private revisarRecordatoriosVencidos(): void {
+    // Seguridad para entornos sin objeto window (ej. renderizado en servidor).
     if (typeof window === 'undefined') {
       return;
     }
 
     const ahora = Date.now();
     const vencidas = this.tareas.filter(t => {
+      // Ignora tareas sin recordatorio, ya notificadas o ya completadas.
       if (!t.recordatorio || t.recordada || t.completada) {
         return false;
       }
 
       const fechaRecordatorio = new Date(t.recordatorio).getTime();
+      // Ignora fechas mal formadas.
       if (Number.isNaN(fechaRecordatorio)) {
         return false;
       }
 
+      // Es vencida si la fecha del recordatorio ya pasó.
       return fechaRecordatorio <= ahora;
     });
 
@@ -268,8 +297,10 @@ export class Tareas implements OnInit, OnDestroy {
     }
 
     for (const tarea of vencidas) {
+      // Marca como recordada para no repetir notificaciones de la misma tarea.
       this.tareasService.marcarRecordada(tarea.id);
 
+      // Notificación nativa solo si el permiso fue concedido.
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('Recordatorio de tarea', {
           body: tarea.titulo,
@@ -277,6 +308,7 @@ export class Tareas implements OnInit, OnDestroy {
       }
     }
 
+    // Además de la notificación nativa, muestra un resumen en alerta.
     const lista = vencidas.map(t => `• ${t.titulo}`).join('\n');
     window.alert(`Tienes recordatorios pendientes:\n${lista}`);
   }

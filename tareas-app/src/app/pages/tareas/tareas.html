@@ -1,6 +1,8 @@
 <div class="container">
+  <!-- Título principal de la pantalla -->
   <h1>Mis tareas</h1>
 
+  <!-- Formulario de alta de tareas -->
   <div class="form">
     <input
       type="text"
@@ -16,7 +18,9 @@
     <button (click)="agregar()">Agregar</button>
   </div>
 
+  <!-- Calendario mensual con tareas por día -->
   <section class="calendario" *ngIf="tareas.length">
+    <!-- Navegación del mes actual -->
     <div class="cal-header">
       <button type="button" (click)="cambiarMes(-1)">‹</button>
       <h2>{{ tituloMes }}</h2>
@@ -27,6 +31,7 @@
       <div class="cal-cell day-name" *ngFor="let dia of diasSemana">{{ dia }}</div>
     </div>
 
+    <!-- Leyenda visual de colores por categoría -->
     <div class="leyenda-colores">
       <span class="leyenda-item" *ngFor="let item of leyendaCategorias">
         <span class="dot" [ngClass]="item.clase"></span>
@@ -38,6 +43,7 @@
       <div class="cal-cell" *ngFor="let celda of celdasCalendario" [class.empty]="!celda.dia">
         <ng-container *ngIf="celda.dia">
           <span class="day-number">{{ celda.dia }}</span>
+          <!-- Tareas del día; clic en tarea para abrir/gestionar -->
           <ul class="day-tasks" *ngIf="celda.tareas.length">
             <li
               *ngFor="let t of celda.tareas"
@@ -49,6 +55,7 @@
               (click)="abrirTareaDesdeCalendario(t.id)"
             >
               <span>{{ t.titulo }} ({{ t.categoria }})</span>
+              <!-- Evita abrir la tarea al pulsar eliminar -->
               <button
                 type="button"
                 class="delete-cal"
@@ -64,6 +71,7 @@
     </div>
   </section>
 
+  <!-- Listado principal agrupado por categoría -->
   <div *ngIf="tareas.length; else vacio">
     <section class="grupo" *ngFor="let grupo of tareasPorCategoria | keyvalue">
       <h2>{{ grupo.key }}</h2>
@@ -98,16 +106,19 @@
           >
             Finalizar por hoy
           </button>
+          <!-- Botón para solicitar confirmación antes de borrar -->
           <button class="delete" (click)="pedirConfirmacionEliminar(t)">✕</button>
         </li>
       </ul>
     </section>
   </div>
 
+  <!-- Estado vacío cuando no hay tareas -->
   <ng-template #vacio>
     <p class="hint">No hay tareas aún. Agrega la primera 👇</p>
   </ng-template>
 
+  <!-- Modal de confirmación de eliminación -->
   <div class="modal-overlay" *ngIf="tareaPendienteEliminar">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-confirmar-eliminar">
       <h3 id="titulo-confirmar-eliminar">¿Quieres borrar esta tarea?</h3>
